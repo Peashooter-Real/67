@@ -139,5 +139,9 @@ io.on('connection', (socket) => {
 });
 
 const PORT = process.env.PORT || 3001;
+// Route handlers for cleaner URLs
 app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'index.html')));
+app.get('/lobby', (req, res) => res.sendFile(path.join(__dirname, 'lobby.html')));
+app.get('/game', (req, res) => res.sendFile(path.join(__dirname, 'game.html')));
+
 server.listen(PORT, () => console.log(`Server running on http://localhost:${PORT}`));

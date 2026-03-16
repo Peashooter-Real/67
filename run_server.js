@@ -221,7 +221,11 @@ io.on('connection', (socket) => {
 });
 
 const PORT = process.env.PORT || 3001;
+// Route handlers for cleaner URLs
 app.get('/', (req, res) => res.sendFile(__nccwpck_require__.ab + "index.html"));
+app.get('/lobby', (req, res) => res.sendFile(__nccwpck_require__.ab + "lobby.html"));
+app.get('/game', (req, res) => res.sendFile(__nccwpck_require__.ab + "game.html"));
+
 server.listen(PORT, () => console.log(`Server running on http://localhost:${PORT}`));
 
 module.exports = __webpack_exports__;
