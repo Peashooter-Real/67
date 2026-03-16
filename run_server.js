@@ -192,7 +192,8 @@ io.on('connection', (socket) => {
             currentNumber: 1,
             direction: 1,
             lastCard: null,
-            playedPile: [], // Storage for cards played in current round
+            pendingCard: null, // Card currently revealed and waiting for action
+            playedPile: [],
             winner: null,
             subTurn: 0
         };
@@ -206,15 +207,28 @@ io.on('connection', (socket) => {
         }, 5000);
     });
 
+    socket.on('flip_card', (roomId) => {
+        const room = rooms.get(roomId);
+        if (!room || room.status !== 'playing') return;
+        const state = room.gameState;
+        const currentPlayer = room.players[state.currentTurn];
+        if (currentPlayer.id !== socket.id || state.pendingCard) return;
+
+        if (currentPlayer.deck.length > 0) {
+            state.pendingCard = currentPlayer.deck.shift();
+            io.to(roomId).emit('update_game_state', room);
+        }
+    });
+
     socket.on('play_card', ({ roomId, action }) => {
         const room = rooms.get(roomId);
         if (!room || room.status !== 'playing') return;
 
         const state = room.gameState;
         const currentPlayer = room.players[state.currentTurn];
-        if (currentPlayer.id !== socket.id) return;
+        if (currentPlayer.id !== socket.id || !state.pendingCard) return;
 
-        const currentCard = currentPlayer.deck[0];
+        const currentCard = state.pendingCard;
         let expectedAction = '';
         if (currentCard.type.startsWith('NORMAL')) expectedAction = state.currentNumber.toString();
         else if (currentCard.type.startsWith('PHONE')) expectedAction = 'hello';
@@ -222,21 +236,25 @@ io.on('connection', (socket) => {
 
         if (action === expectedAction) {
             state.lastCard = currentCard;
-            state.playedPile.push(currentPlayer.deck.shift()); // Add to pile
+            state.playedPile.push(currentCard);
             
-            if (currentPlayer.deck.length === 0) {
-                state.winner = currentPlayer.username;
-                room.status = 'finished';
-                io.to(roomId).emit('game_over', room);
-                return;
-            }
             state.subTurn++;
             const { next, nextDirection } = getNextCount(state.currentNumber, state.direction);
             state.currentNumber = next;
             state.direction = nextDirection;
 
+            // If card actions are complete (1 for single, 2 for double)
             if (state.subTurn >= currentCard.count) {
                 state.subTurn = 0;
+                state.pendingCard = null; // Clear revealed card
+
+                if (currentPlayer.deck.length === 0) {
+                    state.winner = currentPlayer.username;
+                    room.status = 'finished';
+                    io.to(roomId).emit('game_over', room);
+                    return;
+                }
+
                 let nextTurn = (state.currentTurn + 1) % room.players.length;
                 if (currentCard.skip) nextTurn = (nextTurn + 1) % room.players.length;
                 state.currentTurn = nextTurn;
@@ -244,25 +262,17 @@ io.on('connection', (socket) => {
             io.to(roomId).emit('update_game_state', room);
         } else {
             // PENALTY: Take all cards from pile back to deck
-            const penaltyCards = state.playedPile.length;
-            if (penaltyCards > 0) {
-                currentPlayer.deck = shuffle([...currentPlayer.deck, ...state.playedPile]);
-                state.playedPile = [];
-                state.lastCard = null;
-                state.subTurn = 0;
-                
-                // Move turn to next person after penalty
-                state.currentTurn = (state.currentTurn + 1) % room.players.length;
-                
-                io.to(roomId).emit('penalty_given', { 
-                    username: currentPlayer.username, 
-                    count: penaltyCards 
-                });
-                io.to(roomId).emit('update_game_state', room);
-            } else {
-                // If pile is empty, just shake/notify
-                socket.emit('wrong_move');
-            }
+            const penaltyCards = state.playedPile.length + 1; // Pile + the current revealed card
+            currentPlayer.deck = shuffle([...currentPlayer.deck, ...state.playedPile, state.pendingCard]);
+            state.playedPile = [];
+            state.lastCard = null;
+            state.pendingCard = null;
+            state.subTurn = 0;
+            
+            state.currentTurn = (state.currentTurn + 1) % room.players.length;
+            
+            io.to(roomId).emit('penalty_given', { username: currentPlayer.username, count: penaltyCards });
+            io.to(roomId).emit('update_game_state', room);
         }
     });
 });
