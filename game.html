@@ -216,9 +216,8 @@
 
         // Re-join for existing session check if needed, but in this architecture, lobby handles it.
         // We just need to listen for game updates.
-        socket.emit('join_room', { roomId, username });
-
         socket.on('update_game_state', updateUI);
+        socket.emit('join_room', { roomId, username });
         
         socket.on('penalty_given', ({ username, count }) => {
             const notif = document.getElementById('penalty-notif');

@@ -202,13 +202,22 @@ io.on('connection', (socket) => {
 
         // Auto-start game after 5 seconds of order preview
         setTimeout(() => {
+            if (!room) return;
             room.status = 'playing';
-            // Set first pending card automatically
-            const firstPlayer = room.players[room.gameState.currentTurn];
-            if (firstPlayer && firstPlayer.deck.length > 0) {
+            
+            // Re-check first player and their deck
+            const turnIndex = room.gameState.currentTurn;
+            const firstPlayer = room.players[turnIndex];
+            
+            if (firstPlayer && firstPlayer.deck && firstPlayer.deck.length > 0) {
                 room.gameState.pendingCard = firstPlayer.deck.shift();
+            } else {
+                console.log("Warning: First player deck is empty or undefined", firstPlayer);
             }
+            
             io.to(roomId).emit('game_started', room);
+            // Also emit update to ensure anyone already on game.html gets it
+            io.to(roomId).emit('update_game_state', room);
         }, 5000);
     });
 
