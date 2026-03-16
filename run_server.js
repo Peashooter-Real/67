@@ -144,10 +144,36 @@ io.on('connection', (socket) => {
                 host: socket.id
             });
         }
+        
         const room = rooms.get(roomId);
-        const player = { id: socket.id, username, deck: [] };
-        room.players.push(player);
-        io.to(roomId).emit('room_update', { room, isHost: room.host === socket.id });
+        
+        // Find if player already exists in this room
+        let player = room.players.find(p => p.username === username);
+        
+        if (player) {
+            // Update existing player with new socket ID
+            const oldId = player.id;
+            player.id = socket.id;
+            // If they were host, update host ID
+            if (room.host === oldId) room.host = socket.id;
+        } else {
+            // New player
+            player = { id: socket.id, username, deck: [] };
+            room.players.push(player);
+            // First player is always host if not already set
+            if (!room.host) room.host = socket.id;
+        }
+
+        // Send update to everyone
+        io.to(roomId).emit('room_update', { 
+            room, 
+            isHost: room.host === socket.id 
+        });
+
+        // If game is already in progress, send the current state to the joining user
+        if (room.status === 'playing' || room.status === 'finished') {
+            socket.emit('update_game_state', room);
+        }
     });
 
     socket.on('start_game', (roomId) => {
