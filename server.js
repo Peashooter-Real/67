@@ -1,95 +1,13 @@
-/******/ (() => { // webpackBootstrap
-/******/ 	var __webpack_modules__ = ({
-
-/***/ 995:
-/***/ ((module) => {
-
-module.exports = eval("require")("cors");
-
-
-/***/ }),
-
-/***/ 300:
-/***/ ((module) => {
-
-module.exports = eval("require")("express");
-
-
-/***/ }),
-
-/***/ 547:
-/***/ ((module) => {
-
-module.exports = eval("require")("socket.io");
-
-
-/***/ }),
-
-/***/ 611:
-/***/ ((module) => {
-
-"use strict";
-module.exports = require("http");
-
-/***/ }),
-
-/***/ 928:
-/***/ ((module) => {
-
-"use strict";
-module.exports = require("path");
-
-/***/ })
-
-/******/ 	});
-/************************************************************************/
-/******/ 	// The module cache
-/******/ 	var __webpack_module_cache__ = {};
-/******/ 	
-/******/ 	// The require function
-/******/ 	function __nccwpck_require__(moduleId) {
-/******/ 		// Check if module is in cache
-/******/ 		var cachedModule = __webpack_module_cache__[moduleId];
-/******/ 		if (cachedModule !== undefined) {
-/******/ 			return cachedModule.exports;
-/******/ 		}
-/******/ 		// Create a new module (and put it into the cache)
-/******/ 		var module = __webpack_module_cache__[moduleId] = {
-/******/ 			// no module.id needed
-/******/ 			// no module.loaded needed
-/******/ 			exports: {}
-/******/ 		};
-/******/ 	
-/******/ 		// Execute the module function
-/******/ 		var threw = true;
-/******/ 		try {
-/******/ 			__webpack_modules__[moduleId](module, module.exports, __nccwpck_require__);
-/******/ 			threw = false;
-/******/ 		} finally {
-/******/ 			if(threw) delete __webpack_module_cache__[moduleId];
-/******/ 		}
-/******/ 	
-/******/ 		// Return the exports of the module
-/******/ 		return module.exports;
-/******/ 	}
-/******/ 	
-/************************************************************************/
-/******/ 	/* webpack/runtime/compat */
-/******/ 	
-/******/ 	if (typeof __nccwpck_require__ !== 'undefined') __nccwpck_require__.ab = __dirname + "/";
-/******/ 	
-/************************************************************************/
-var __webpack_exports__ = {};
-const express = __nccwpck_require__(300);
-const http = __nccwpck_require__(611);
-const { Server } = __nccwpck_require__(547);
-const cors = __nccwpck_require__(995);
-const path = __nccwpck_require__(928);
+const express = require('express');
+const http = require('http');
+const { Server } = require('socket.io');
+const cors = require('cors');
+const path = require('path');
 
 const app = express();
 app.use(cors());
 app.use(express.static(__dirname));
-app.use('/assets', express.static(__nccwpck_require__.ab + "assets"));
+app.use('/assets', express.static(path.join(__dirname, 'assets')));
 
 const server = http.createServer(app);
 const io = new Server(server, {
@@ -221,9 +139,5 @@ io.on('connection', (socket) => {
 });
 
 const PORT = process.env.PORT || 3001;
-app.get('/', (req, res) => res.sendFile(__nccwpck_require__.ab + "index.html"));
+app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'index.html')));
 server.listen(PORT, () => console.log(`Server running on http://localhost:${PORT}`));
-
-module.exports = __webpack_exports__;
-/******/ })()
-;

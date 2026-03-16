@@ -21,256 +21,101 @@
             --glass-border: rgba(255, 255, 255, 0.1);
         }
 
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: 'Anuphan', sans-serif;
-        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Anuphan', sans-serif; }
 
         body {
             background: radial-gradient(circle at top left, #1e1b4b, #0f172a);
             color: var(--text-main);
             min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            overflow-x: hidden;
+            display: flex; justify-content: center; align-items: center; overflow-x: hidden;
         }
 
-        .container {
-            width: 100%;
-            max-width: 1000px;
-            padding: 20px;
-        }
+        .container { width: 100%; max-width: 1000px; padding: 20px; }
 
-        /* Login Panel */
         .glass-panel {
-            background: var(--bg-card);
-            backdrop-filter: blur(12px);
-            border: 1px solid var(--glass-border);
-            border-radius: 24px;
-            padding: 40px;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
-            max-width: 450px;
-            margin: 0 auto;
-            text-align: center;
+            background: var(--bg-card); backdrop-filter: blur(12px); border: 1px solid var(--glass-border);
+            border-radius: 24px; padding: 40px; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            max-width: 450px; margin: 0 auto; text-align: center;
         }
 
         h1 {
-            font-size: 2.5rem;
-            font-weight: 800;
-            margin-bottom: 30px;
+            font-size: 2.5rem; font-weight: 800; margin-bottom: 30px;
             background: linear-gradient(to right, #c084fc, #6366f1);
-            -webkit-background-clip: text;
-            background-clip: text;
-            -webkit-text-fill-color: transparent;
+            -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
         }
 
-        .input-group {
-            text-align: left;
-            margin-bottom: 20px;
-        }
-
-        label {
-            display: block;
-            margin-bottom: 8px;
-            color: var(--text-muted);
-            font-size: 0.9rem;
-        }
-
+        .input-group { text-align: left; margin-bottom: 20px; }
+        label { display: block; margin-bottom: 8px; color: var(--text-muted); font-size: 0.9rem; }
         input {
-            width: 100%;
-            background: rgba(15, 23, 42, 0.5);
-            border: 1px solid var(--glass-border);
-            border-radius: 12px;
-            padding: 12px 16px;
-            color: white;
-            font-size: 1rem;
-            transition: all 0.2s;
+            width: 100%; background: rgba(15, 23, 42, 0.5); border: 1px solid var(--glass-border);
+            border-radius: 12px; padding: 12px 16px; color: white; font-size: 1rem; transition: all 0.2s;
         }
-
-        input:focus {
-            outline: none;
-            border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.3);
-        }
+        input:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.3); }
 
         button {
-            width: 100%;
-            background: var(--primary);
-            color: white;
-            border: none;
-            border-radius: 12px;
-            padding: 14px;
-            font-size: 1rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
+            width: 100%; background: var(--primary); color: white; border: none; border-radius: 12px;
+            padding: 14px; font-size: 1rem; font-weight: 600; cursor: pointer; transition: all 0.2s;
+            display: flex; align-items: center; justify-content: center; gap: 8px;
         }
+        button:hover { background: var(--primary-hover); transform: translateY(-2px); }
+        button:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
 
-        button:hover {
-            background: var(--primary-hover);
-            transform: translateY(-2px);
-        }
-
-        button:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-            transform: none;
-        }
-
-        /* Game UI */
-        #game-view {
-            display: none;
-            grid-template-rows: auto 1fr auto;
-            gap: 20px;
-            height: 90vh;
-        }
-
+        #game-view { display: none; grid-template-rows: auto 1fr auto; gap: 20px; height: 90vh; }
         .game-header {
-            display: flex;
-            justify-content: center;
-            gap: 15px;
-            padding: 15px;
-            background: var(--glass);
-            border-radius: 16px;
-            flex-wrap: wrap;
+            display: flex; justify-content: center; gap: 15px; padding: 15px;
+            background: var(--glass); border-radius: 16px; flex-wrap: wrap;
         }
 
         .player-card {
-            background: var(--glass);
-            padding: 10px 20px;
-            border-radius: 12px;
-            text-align: center;
-            min-width: 120px;
-            border: 2px solid transparent;
-            transition: all 0.3s;
+            background: var(--glass); padding: 10px 20px; border-radius: 12px; text-align: center;
+            min-width: 120px; border: 2px solid transparent; transition: all 0.3s;
         }
+        .player-card.active { border-color: var(--primary); background: rgba(139, 92, 246, 0.2); }
+        /* Hide active highlighting when playing based on user request */
+        .playing .player-card.active { border-color: transparent; background: var(--glass); }
 
-        .player-card.active {
-            border-color: var(--primary);
-            background: rgba(139, 92, 246, 0.2);
-            box-shadow: 0 0 15px rgba(139, 92, 246, 0.3);
-        }
+        .center-stage { display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; }
+        .num-display { font-size: 5rem; font-weight: 900; color: var(--primary); margin-bottom: 10px; text-shadow: 0 0 20px rgba(139, 92, 246, 0.4); }
 
-        .player-card h3 { font-size: 1rem; }
-        .player-card p { font-size: 0.8rem; color: var(--text-muted); }
-
-        .center-stage {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            position: relative;
-        }
-
-        .num-display {
-            font-size: 5rem;
-            font-weight: 900;
-            color: var(--primary);
-            margin-bottom: 10px;
-            text-shadow: 0 0 20px rgba(139, 92, 246, 0.4);
-        }
-
-        .card-stack {
-            position: relative;
-            width: 200px;
-            height: 280px;
-            perspective: 1000px;
-        }
-
+        .card-stack { position: relative; width: 220px; height: 320px; perspective: 1000px; }
         .card {
-            width: 100%;
-            height: 100%;
-            background: white;
-            border-radius: 20px;
-            color: #1e293b;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.4);
-            border: 6px solid white;
-            transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            position: absolute;
+            width: 100%; height: 100%; background: white; border-radius: 20px; color: #1e293b;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.4); border: 6px solid white;
+            transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); position: absolute; overflow: hidden;
         }
+        .card img { width: 100%; height: 75%; object-fit: cover; }
+        .card-info { padding: 10px; text-align: center; width: 100%; background: white; }
+        .card h2 { font-size: 1rem; color: #1e293b; }
 
-        .card .icon {
-            margin-bottom: 15px;
-            color: var(--primary);
-        }
+        .controls { background: var(--glass); padding: 25px; border-radius: 24px; display: flex; flex-direction: column; gap: 15px; }
+        .number-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; }
+        .action-buttons { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        .btn-game { background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border); }
+        .btn-game.active { background: var(--primary); }
 
-        .card h2 { font-size: 1.2rem; }
-
-        .controls {
-            background: var(--glass);
-            padding: 25px;
-            border-radius: 24px;
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-        }
-
-        .number-grid {
-            display: grid;
-            grid-template-columns: repeat(7, 1fr);
-            gap: 8px;
-        }
-
-        .action-buttons {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
-        }
-
-        .btn-game {
-            background: rgba(255,255,255,0.05);
-            border: 1px solid var(--glass-border);
-        }
-
-        .btn-game.active {
-            background: var(--primary);
-        }
-
-        /* Overlay */
         .overlay {
-            position: fixed;
-            inset: 0;
-            background: rgba(0,0,0,0.85);
-            backdrop-filter: blur(10px);
-            display: none;
-            align-items: center;
-            justify-content: center;
-            z-index: 1000;
+            position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(10px);
+            display: none; align-items: center; justify-content: center; z-index: 1000;
         }
 
-        /* Animations */
-        @keyframes shake {
-            0%, 100% { transform: translateX(0); }
-            25% { transform: translateX(-10px); }
-            75% { transform: translateX(10px); }
+        .order-item {
+            display: flex; align-items: center; gap: 15px; padding: 10px 20px;
+            background: var(--glass); border-radius: 12px; margin-bottom: 10px; width: 100%;
+        }
+        .order-index {
+            width: 30px; height: 30px; background: var(--primary); border-radius: 50%;
+            display: flex; align-items: center; justify-content: center; font-weight: bold;
         }
 
+        @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-10px); } 75% { transform: translateX(10px); } }
         .shake { animation: shake 0.4s; }
-
-        @keyframes pop {
-            0% { transform: scale(0.5); opacity: 0; }
-            100% { transform: scale(1); opacity: 1; }
-        }
-
+        @keyframes pop { 0% { transform: scale(0.5); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
         .pop { animation: pop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
-
     </style>
 </head>
 <body>
-
     <div class="container">
-        <!-- Login View -->
         <div id="login-view" class="glass-panel pop">
             <h1>นับ 7 Online</h1>
             <div class="input-group">
@@ -284,39 +129,40 @@
             <button id="join-btn"><i data-lucide="log-in"></i> เข้าเล่นเกม</button>
         </div>
 
-        <!-- Waiting View -->
         <div id="waiting-view" class="glass-panel" style="display: none;">
             <h1>รอกลุ่มเพื่อน...</h1>
             <p style="color: var(--text-muted); margin-bottom: 20px;">Room: <b id="display-room-id" style="color: white"></b></p>
-            <div id="player-list" class="game-header" style="background: none;">
-                <!-- Players will appear here -->
+            <div id="player-list" class="game-header" style="background: none;"></div>
+            <div id="host-controls" style="display: none;">
+                <button id="start-btn" style="margin-top: 30px;">
+                    <i data-lucide="play"></i> เริ่มเกมเลย! (เจ้าของห้อง)
+                </button>
             </div>
-            <button id="start-btn" style="margin-top: 30px; display: none;">
-                <i data-lucide="play"></i> เริ่มเกมเลย!
-            </button>
+            <p id="non-host-msg" style="margin-top: 20px; color: var(--text-muted);">รอเจ้าของห้องเริ่มเกม...</p>
         </div>
 
-        <!-- Game View -->
-        <div id="game-view">
-            <div id="top-player-list" class="game-header">
-                <!-- Sync with state -->
-            </div>
+        <div id="order-view" class="glass-panel" style="display: none;">
+            <h1>ลำดับการเล่น</h1>
+            <div id="order-list"></div>
+            <p style="margin-top: 20px; color: var(--primary);">เกมจะเริ่มใน 5 วินาที...</p>
+        </div>
 
+        <div id="game-view">
+            <div id="top-player-list" class="game-header"></div>
             <div class="center-stage">
                 <div class="num-display" id="current-num">1</div>
                 <div id="direction-icon"><i data-lucide="arrow-up"></i></div>
-                
                 <div class="card-stack" id="card-stack">
                     <div class="card" id="main-card">
-                        <div class="icon" id="card-icon"></div>
-                        <h2 id="card-label">เตรียมตัว...</h2>
-                        <p id="card-sub"></p>
+                        <img id="card-image" src="" alt="card image" style="display: none;">
+                        <div class="card-info">
+                            <h2 id="card-label">เตรียมตัว...</h2>
+                            <p id="card-sub"></p>
+                        </div>
                     </div>
                 </div>
-                
-                <p id="turn-status" style="margin-top: 30px; font-weight: 600;"></p>
+                <p id="turn-status" style="margin-top: 30px; font-weight: 600; display: none;"></p>
             </div>
-
             <div class="controls" id="game-controls">
                 <div class="number-grid">
                     <button class="btn-game" onclick="play('1')">1</button>
@@ -335,7 +181,6 @@
         </div>
     </div>
 
-    <!-- Win Overlay -->
     <div id="win-overlay" class="overlay">
         <div class="glass-panel">
             <h1 id="winner-text">ผู้ชนะคือ...</h1>
@@ -344,18 +189,14 @@
     </div>
 
     <script>
-        // Initialize Lucide icons
         lucide.createIcons();
-
         const socket = io('http://localhost:3001');
-        let myUsername = '';
-        let currentRoomId = '';
-        let isMyTurn = false;
+        let myUsername = '', currentRoomId = '', isMyTurn = false, isHost = false;
 
-        // UI Elements
         const views = {
             login: document.getElementById('login-view'),
             waiting: document.getElementById('waiting-view'),
+            order: document.getElementById('order-view'),
             game: document.getElementById('game-view')
         };
 
@@ -365,7 +206,6 @@
             else views[viewName].style.display = 'block';
         }
 
-        // --- Socket Logic ---
         document.getElementById('join-btn').onclick = () => {
             myUsername = document.getElementById('username').value;
             currentRoomId = document.getElementById('roomId').value;
@@ -376,32 +216,36 @@
             }
         };
 
-        document.getElementById('start-btn').onclick = () => {
-            socket.emit('start_game', currentRoomId);
-        };
+        document.getElementById('start-btn').onclick = () => socket.emit('start_game', currentRoomId);
 
-        socket.on('room_update', (room) => {
+        socket.on('room_update', (data) => {
+            const { room, isHost: hostFlag } = data;
+            isHost = hostFlag;
+            document.getElementById('host-controls').style.display = isHost ? 'block' : 'none';
+            document.getElementById('non-host-msg').style.display = isHost ? 'none' : 'block';
+            
             const list = document.getElementById('player-list');
-            list.innerHTML = room.players.map(p => `
-                <div class="player-card">
-                    <div style="margin-bottom: 5px; color: var(--primary)"><i data-lucide="user"></i></div>
-                    <h3>${p.username}</h3>
+            list.innerHTML = room.players.map(p => `<div class="player-card"><h3>${p.username}</h3></div>`).join('');
+        });
+
+        socket.on('show_order', (room) => {
+            const list = document.getElementById('order-list');
+            list.innerHTML = room.players.map((p, i) => `
+                <div class="order-item">
+                    <div class="order-index">${i+1}</div>
+                    <div style="font-weight: 600;">${p.username}</div>
                 </div>
             `).join('');
-            lucide.createIcons();
-            
-            if (room.players.length >= 2) {
-                document.getElementById('start-btn').style.display = 'flex';
-            }
+            showView('order');
         });
 
         socket.on('game_started', updateGameState);
         socket.on('update_game_state', updateGameState);
 
         socket.on('wrong_move', () => {
-            const controls = document.getElementById('game-controls');
-            controls.classList.add('shake');
-            setTimeout(() => controls.classList.remove('shake'), 400);
+            const ctrl = document.getElementById('game-controls');
+            ctrl.classList.add('shake');
+            setTimeout(() => ctrl.classList.remove('shake'), 400);
         });
 
         socket.on('game_over', (room) => {
@@ -411,16 +255,13 @@
 
         function updateGameState(room) {
             showView('game');
-            const state = room.gameState;
-            const players = room.players;
-            
-            // Turn Logic
+            document.getElementById('game-view').classList.add('playing');
+            const state = room.gameState, players = room.players;
             isMyTurn = players[state.currentTurn].id === socket.id;
-            const statusText = document.getElementById('turn-status');
-            statusText.innerText = isMyTurn ? "ตาคุณแล้ว! กดปุ่มเร็ว!" : `รอ ${players[state.currentTurn].username}...`;
-            statusText.style.color = isMyTurn ? 'var(--primary-hover)' : 'var(--text-muted)';
             
-            // Header
+            // User requested NOT TO SHOW who's turn it is during play
+            // So we hide turn-status and don't highlight the active player card
+            
             document.getElementById('top-player-list').innerHTML = players.map((p, idx) => `
                 <div class="player-card ${state.currentTurn === idx ? 'active' : ''}">
                     <h3>${p.username}</h3>
@@ -428,41 +269,22 @@
                 </div>
             `).join('');
 
-            // Center Info
             document.getElementById('current-num').innerText = state.currentNumber;
             document.querySelector('#direction-icon i').setAttribute('data-lucide', state.direction === 1 ? 'arrow-up' : 'arrow-down');
             lucide.createIcons();
 
-            // Card Display
             if (state.lastCard) {
                 const card = state.lastCard;
-                const iconDiv = document.getElementById('card-icon');
-                const label = document.getElementById('card-label');
-                const sub = document.getElementById('card-sub');
-                
-                let iconName = 'user';
-                if (card.type.includes('PHONE')) iconName = 'smartphone';
-                if (card.type.includes('GUN')) iconName = 'target';
-                
-                iconDiv.innerHTML = `<i data-lucide="${iconName}" style="width: 64px; height: 64px;"></i>`;
-                label.innerText = card.label;
-                sub.innerText = card.count === 2 ? 'x2 (ข้ามคนถัดไป)' : '';
-                
-                // Add pop animation to card
+                const img = document.getElementById('card-image');
+                img.src = card.img; img.style.display = 'block';
+                document.getElementById('card-label').innerText = card.label;
+                document.getElementById('card-sub').innerText = card.count === 2 ? 'x2 (ข้ามคนถัดไป)' : '';
                 const mainCard = document.getElementById('main-card');
-                mainCard.classList.remove('pop');
-                void mainCard.offsetWidth; // trigger reflow
-                mainCard.classList.add('pop');
-                
-                lucide.createIcons();
+                mainCard.classList.remove('pop'); void mainCard.offsetWidth; mainCard.classList.add('pop');
             }
 
-            // Controls
             const btns = document.querySelectorAll('.btn-game');
-            btns.forEach(b => {
-                if (isMyTurn) b.classList.add('active');
-                else b.classList.remove('active');
-            });
+            btns.forEach(b => isMyTurn ? b.classList.add('active') : b.classList.remove('active'));
         }
 
         function play(action) {
