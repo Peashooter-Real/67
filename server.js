@@ -110,6 +110,7 @@ io.on('connection', (socket) => {
             currentNumber: 1,
             direction: 1,
             lastCard: null,
+            playedPile: [], // Storage for cards played in current round
             winner: null,
             subTurn: 0
         };
@@ -139,7 +140,8 @@ io.on('connection', (socket) => {
 
         if (action === expectedAction) {
             state.lastCard = currentCard;
-            currentPlayer.deck.shift();
+            state.playedPile.push(currentPlayer.deck.shift()); // Add to pile
+            
             if (currentPlayer.deck.length === 0) {
                 state.winner = currentPlayer.username;
                 room.status = 'finished';
@@ -159,7 +161,26 @@ io.on('connection', (socket) => {
             }
             io.to(roomId).emit('update_game_state', room);
         } else {
-            socket.emit('wrong_move');
+            // PENALTY: Take all cards from pile back to deck
+            const penaltyCards = state.playedPile.length;
+            if (penaltyCards > 0) {
+                currentPlayer.deck = shuffle([...currentPlayer.deck, ...state.playedPile]);
+                state.playedPile = [];
+                state.lastCard = null;
+                state.subTurn = 0;
+                
+                // Move turn to next person after penalty
+                state.currentTurn = (state.currentTurn + 1) % room.players.length;
+                
+                io.to(roomId).emit('penalty_given', { 
+                    username: currentPlayer.username, 
+                    count: penaltyCards 
+                });
+                io.to(roomId).emit('update_game_state', room);
+            } else {
+                // If pile is empty, just shake/notify
+                socket.emit('wrong_move');
+            }
         }
     });
 });

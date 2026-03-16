@@ -14,6 +14,7 @@
             --bg-dark: #0f172a;
             --text-main: #f8fafc;
             --text-muted: #94a3b8;
+            --danger: #ef4444;
             --glass: rgba(255, 255, 255, 0.05);
             --glass-border: rgba(255, 255, 255, 0.1);
         }
@@ -135,6 +136,14 @@
     </div>
 
     <div class="main-arena">
+        <div style="position: absolute; top: 20px; right: 20px; background: var(--glass); padding: 5px 15px; border-radius: 20px; font-size: 0.8rem; color: var(--text-muted);">
+            การ์ดที่เล่นแล้ว: <span id="pile-count" style="color: white; font-weight: 800;">0</span> ใบ
+        </div>
+        
+        <div id="penalty-notif" style="position: absolute; top: 15%; background: var(--danger); color: white; padding: 10px 30px; border-radius: 50px; font-weight: 800; display: none; z-index: 500;" class="pop">
+            นับผิด! รับไป 10 ใบ
+        </div>
+
         <div class="dir-indicator" id="dir-icon">
             <i data-lucide="arrow-up"></i>
         </div>
@@ -193,6 +202,14 @@
         socket.emit('join_room', { roomId, username });
 
         socket.on('update_game_state', updateUI);
+        
+        socket.on('penalty_given', ({ username, count }) => {
+            const notif = document.getElementById('penalty-notif');
+            notif.innerText = `${username} นับผิด! รับไป ${count} ใบ 🃏`;
+            notif.style.display = 'block';
+            setTimeout(() => { notif.style.display = 'none'; }, 3000);
+        });
+
         socket.on('game_over', (room) => {
             const screen = document.getElementById('win-screen');
             document.getElementById('winner-name').innerText = `🏆 ${room.gameState.winner}`;
@@ -219,6 +236,8 @@
 
             // Gameplay indicators
             document.getElementById('current-num').innerText = state.currentNumber;
+            document.getElementById('pile-count').innerText = state.playedPile.length;
+            
             const dirIcon = document.querySelector('#dir-icon i');
             dirIcon.setAttribute('data-lucide', state.direction === 1 ? 'arrow-up' : 'arrow-down');
             lucide.createIcons();
