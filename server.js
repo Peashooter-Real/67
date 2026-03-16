@@ -121,39 +121,25 @@ io.on('connection', (socket) => {
         // Auto-start game after 5 seconds of order preview
         setTimeout(() => {
             room.status = 'playing';
+            // Set first pending card automatically
+            const firstPlayer = room.players[room.gameState.currentTurn];
+            if (firstPlayer && firstPlayer.deck.length > 0) {
+                room.gameState.pendingCard = firstPlayer.deck.shift();
+            }
             io.to(roomId).emit('game_started', room);
         }, 5000);
-    });
-
-    socket.on('flip_card', (roomId) => {
-        const room = rooms.get(roomId);
-        if (!room || room.status !== 'playing') return;
-        const state = room.gameState;
-        
-        // Find player by socket ID to get their username
-        const requester = room.players.find(p => p.id === socket.id);
-        if (!requester) return;
-
-        const currentPlayer = room.players[state.currentTurn];
-        // Validate it's actually their turn by checking username
-        if (currentPlayer.username !== requester.username || state.pendingCard) return;
-
-        if (currentPlayer.deck.length > 0) {
-            state.pendingCard = currentPlayer.deck.shift();
-            io.to(roomId).emit('update_game_state', room);
-        }
     });
 
     socket.on('play_card', ({ roomId, action }) => {
         const room = rooms.get(roomId);
         if (!room || room.status !== 'playing') return;
-
         const state = room.gameState;
+        
         const requester = room.players.find(p => p.id === socket.id);
-        if (!requester) return;
+        if (!requester || !state.pendingCard) return;
 
         const currentPlayer = room.players[state.currentTurn];
-        if (currentPlayer.username !== requester.username || !state.pendingCard) return;
+        if (currentPlayer.username !== requester.username) return;
 
         const currentCard = state.pendingCard;
         let expectedAction = '';
@@ -185,11 +171,17 @@ io.on('connection', (socket) => {
                 let nextTurn = (state.currentTurn + 1) % room.players.length;
                 if (currentCard.skip) nextTurn = (nextTurn + 1) % room.players.length;
                 state.currentTurn = nextTurn;
+
+                // Auto-flip for next turn
+                const nextPlayer = room.players[state.currentTurn];
+                if (nextPlayer && nextPlayer.deck.length > 0) {
+                    state.pendingCard = nextPlayer.deck.shift();
+                }
             }
             io.to(roomId).emit('update_game_state', room);
         } else {
-            // PENALTY: Take all cards from pile back to deck
-            const penaltyCards = state.playedPile.length + 1; // Pile + the current revealed card
+            // PENALTY
+            const penaltyCards = state.playedPile.length + 1;
             currentPlayer.deck = shuffle([...currentPlayer.deck, ...state.playedPile, state.pendingCard]);
             state.playedPile = [];
             state.lastCard = null;
@@ -198,6 +190,12 @@ io.on('connection', (socket) => {
             
             state.currentTurn = (state.currentTurn + 1) % room.players.length;
             
+            // Auto-flip for next turn after penalty
+            const nextPlayerAfterPenalty = room.players[state.currentTurn];
+            if (nextPlayerAfterPenalty && nextPlayerAfterPenalty.deck.length > 0) {
+                state.pendingCard = nextPlayerAfterPenalty.deck.shift();
+            }
+
             io.to(roomId).emit('penalty_given', { username: currentPlayer.username, count: penaltyCards });
             io.to(roomId).emit('update_game_state', room);
         }

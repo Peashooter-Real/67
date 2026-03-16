@@ -164,21 +164,18 @@
         </div>
         <div class="num-display" id="current-num">1</div>
 
-        <div class="card-container" id="card-container-ui" onclick="flipCard()" style="cursor: pointer;">
+        <div class="card-container" id="card-container-ui">
             <div class="card" id="main-card">
                 <img id="card-image" src="" style="display: none; pointer-events: none;">
                 <div class="card-info" style="pointer-events: none;">
-                    <h2 id="card-label" style="font-size: 1.1rem;">คว่ำหน้า...</h2>
+                    <h2 id="card-label" style="font-size: 1.1rem;">เตรียมตัว...</h2>
                     <p id="card-sub" style="font-size: 0.8rem; font-weight: 600; color: var(--primary)"></p>
                 </div>
             </div>
-            <!-- Pulse effect for when it's your turn to flip -->
-            <div id="flip-hint" style="position: absolute; inset: -10px; border: 4px solid var(--primary); border-radius: 30px; display: none; pointer-events: none;"></div>
         </div>
         
         <div id="turn-actions" style="margin-top: 25px; text-align: center;">
             <div id="action-prompt" style="font-weight: 800; color: var(--primary-hover); font-size: 1.2rem; min-height: 1.5rem;"></div>
-            <p id="instruction-text" style="color: var(--text-muted); font-size: 0.9rem; margin-top: 5px;"></p>
         </div>
     </div>
 
@@ -288,39 +285,20 @@
             // Controls
             const currentPlayer = players[state.currentTurn];
             isMyTurn = currentPlayer && currentPlayer.username === username;
-            const hasFlipped = !!state.pendingCard;
             
             const prompt = document.getElementById('action-prompt');
-            const instruct = document.getElementById('instruction-text');
-            const hint = document.getElementById('flip-hint');
 
             if (isMyTurn) {
-                if (!hasFlipped) {
-                    prompt.innerText = "⭐ ถึงตาคุณแล้ว!";
-                    instruct.innerText = "คลิกที่กองไพ่เพื่อเปิดไพ่";
-                    hint.style.display = 'block';
-                    hint.classList.add('pulse');
-                } else {
-                    prompt.innerText = "🔥 เลือกแอคชั่นให้ถูก!";
-                    instruct.innerText = "กดเลข หรือพูด HELLO / เงียบ";
-                    hint.style.display = 'none';
-                }
+                prompt.innerText = "🔥 ตาของคุณแล้ว! เลือกแอคชั่น";
             } else {
-                prompt.innerText = `รอตาของ ${players[state.currentTurn].username}...`;
-                instruct.innerText = "";
-                hint.style.display = 'none';
+                prompt.innerText = `รอตาของ ${currentPlayer.username}...`;
             }
 
             const btns = document.querySelectorAll('.game-controls button');
             btns.forEach(b => {
-                if (isMyTurn && hasFlipped) b.classList.add('active');
+                if (isMyTurn) b.classList.add('active');
                 else b.classList.remove('active');
             });
-        }
-
-        function flipCard() {
-            if (!isMyTurn) return;
-            socket.emit('flip_card', roomId);
         }
 
         function playAction(action) {
