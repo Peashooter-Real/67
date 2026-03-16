@@ -126,7 +126,22 @@
         .shake { animation: shake 0.3s; }
 
         @keyframes pop { 0% { transform: scale(0.6) rotate(-10deg); opacity: 0; } 100% { transform: scale(1) rotate(0); opacity: 1; } }
-        .pop { animation: pop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        @keyframes pulse { 0% { opacity: 0.3; transform: scale(1); } 100% { opacity: 1; transform: scale(1.05); } }
+        .pulse { animation: pulse 0.8s infinite alternate ease-in-out; }
+
+        /* Mobile Optimization */
+        @media (max-width: 480px) {
+            .num-display { font-size: 4rem; margin-bottom: 10px; }
+            .card-container { width: 180px; height: 260px; }
+            .card { border-width: 4px; border-radius: 16px; }
+            .card-info h2 { font-size: 0.9rem !important; }
+            .number-btns { grid-template-columns: repeat(4, 1fr); gap: 8px; }
+            .action-btns { gap: 10px; }
+            button { height: 48px; font-size: 0.9rem; border-radius: 10px; }
+            .game-controls { padding: 20px 15px; border-radius: 24px 24px 0 0; }
+            .player-bar-item { padding: 8px 12px; font-size: 0.8rem; }
+            #action-prompt { font-size: 1rem; }
+        }
     </style>
 </head>
 <body>
@@ -149,21 +164,21 @@
         </div>
         <div class="num-display" id="current-num">1</div>
 
-        <div class="card-container">
+        <div class="card-container" id="card-container-ui" onclick="flipCard()" style="cursor: pointer;">
             <div class="card" id="main-card">
-                <img id="card-image" src="" style="display: none;">
-                <div class="card-info">
+                <img id="card-image" src="" style="display: none; pointer-events: none;">
+                <div class="card-info" style="pointer-events: none;">
                     <h2 id="card-label" style="font-size: 1.1rem;">คว่ำหน้า...</h2>
                     <p id="card-sub" style="font-size: 0.8rem; font-weight: 600; color: var(--primary)"></p>
                 </div>
             </div>
+            <!-- Pulse effect for when it's your turn to flip -->
+            <div id="flip-hint" style="position: absolute; inset: -10px; border: 4px solid var(--primary); border-radius: 30px; display: none; pointer-events: none;"></div>
         </div>
         
-        <div id="turn-actions" style="margin-top: 25px;">
-            <button id="flip-btn" onclick="flipCard()" style="padding: 10px 40px; background: var(--primary); display: none;">
-                <i data-lucide="refresh-cw"></i> เปิดไพ่ของคุณ!
-            </button>
-            <p id="my-turn-label" style="font-weight: 800; color: var(--primary-hover); display: none;">รอเปิดไพ่...</p>
+        <div id="turn-actions" style="margin-top: 25px; text-align: center;">
+            <div id="action-prompt" style="font-weight: 800; color: var(--primary-hover); font-size: 1.2rem; min-height: 1.5rem;"></div>
+            <p id="instruction-text" style="color: var(--text-muted); font-size: 0.9rem; margin-top: 5px;"></p>
         </div>
     </div>
 
@@ -274,9 +289,26 @@
             isMyTurn = players[state.currentTurn].id === socket.id;
             const hasFlipped = !!state.pendingCard;
             
-            document.getElementById('flip-btn').style.display = (isMyTurn && !hasFlipped) ? 'flex' : 'none';
-            document.getElementById('my-turn-label').style.display = (isMyTurn && hasFlipped) ? 'block' : 'none';
-            if (isMyTurn && hasFlipped) document.getElementById('my-turn-label').innerText = 'ตาของคุณแล้ว! กดเลือกแอคชั่น';
+            const prompt = document.getElementById('action-prompt');
+            const instruct = document.getElementById('instruction-text');
+            const hint = document.getElementById('flip-hint');
+
+            if (isMyTurn) {
+                if (!hasFlipped) {
+                    prompt.innerText = "⭐ ถึงตาคุณแล้ว!";
+                    instruct.innerText = "คลิกที่กองไพ่เพื่อเปิดไพ่";
+                    hint.style.display = 'block';
+                    hint.classList.add('pulse');
+                } else {
+                    prompt.innerText = "🔥 เลือกแอคชั่นให้ถูก!";
+                    instruct.innerText = "กดเลข หรือพูด HELLO / เงียบ";
+                    hint.style.display = 'none';
+                }
+            } else {
+                prompt.innerText = `รอตาของ ${players[state.currentTurn].username}...`;
+                instruct.innerText = "";
+                hint.style.display = 'none';
+            }
 
             const btns = document.querySelectorAll('.game-controls button');
             btns.forEach(b => {

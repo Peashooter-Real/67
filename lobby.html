@@ -41,6 +41,16 @@
             .lobby-container { grid-template-columns: 1fr; }
         }
 
+        @media (max-width: 480px) {
+            body { padding: 20px 15px; }
+            h1 { font-size: 1.5rem; }
+            .glass-panel { padding: 20px; border-radius: 20px; }
+            .player-list { grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 10px; }
+            .player-slot { padding: 15px 10px; }
+            .player-slot i { width: 24px; height: 24px; }
+            .code { font-size: 1.2rem; }
+        }
+
         .glass-panel {
             background: rgba(30, 41, 59, 0.7);
             backdrop-filter: blur(12px);

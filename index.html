@@ -171,6 +171,16 @@
             0% { transform: translate(0, 0) rotate(0deg); }
             100% { transform: translate(100px, 100px) rotate(360deg); }
         }
+
+        /* Mobile Optimization */
+        @media (max-width: 480px) {
+            h1 { font-size: 2.2rem; }
+            .logo-icon { font-size: 3rem; }
+            .form-card { padding: 30px 20px; border-radius: 24px; }
+            input { padding: 14px; font-size: 1rem; }
+            button { height: 50px; font-size: 1rem; }
+            .floater { display: none; } /* Hide floaters on mobile to save space */
+        }
     </style>
 </head>
 <body>
