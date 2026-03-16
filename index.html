@@ -131,7 +131,12 @@
 
         <div id="waiting-view" class="glass-panel" style="display: none;">
             <h1>รอกลุ่มเพื่อน...</h1>
-            <p style="color: var(--text-muted); margin-bottom: 20px;">Room: <b id="display-room-id" style="color: white"></b></p>
+            <p style="color: var(--text-muted); margin-bottom: 20px;">
+                Room ID: <b id="display-room-id" style="color: white"></b>
+                <button id="copy-link-btn" onclick="copyRoomLink()" style="display: inline-flex; width: auto; padding: 4px 12px; font-size: 0.8rem; margin-left: 10px; background: var(--glass);">
+                    <i data-lucide="copy" style="width: 14px; height: 14px;"></i> คัดลอกลิงก์
+                </button>
+            </p>
             <div id="player-list" class="game-header" style="background: none;"></div>
             <div id="host-controls" style="display: none;">
                 <button id="start-btn" style="margin-top: 30px;">
@@ -205,11 +210,38 @@
             if (viewName === 'game') views.game.style.display = 'grid';
             else views[viewName].style.display = 'block';
         }
+        // Check for Room ID in URL on load
+        window.onload = () => {
+            const params = new URLSearchParams(window.location.search);
+            const urlRoomId = params.get('room');
+            if (urlRoomId) {
+                document.getElementById('roomId').value = urlRoomId;
+            }
+        };
 
+        function copyRoomLink() {
+            const link = `${window.location.origin}${window.location.pathname}?room=${currentRoomId}`;
+            navigator.clipboard.writeText(link).then(() => {
+                const btn = document.getElementById('copy-link-btn');
+                const oldText = btn.innerHTML;
+                btn.innerHTML = '<i data-lucide="check"></i> คัดลอกแล้ว!';
+                lucide.createIcons();
+                setTimeout(() => {
+                    btn.innerHTML = oldText;
+                    lucide.createIcons();
+                }, 2000);
+            });
+        }
+
+        // --- Socket Logic ---
         document.getElementById('join-btn').onclick = () => {
             myUsername = document.getElementById('username').value;
             currentRoomId = document.getElementById('roomId').value;
             if (myUsername && currentRoomId) {
+                // Update URL without reloading to allow sharing
+                const newUrl = `${window.location.pathname}?room=${currentRoomId}`;
+                window.history.pushState({ path: newUrl }, '', newUrl);
+                
                 socket.emit('join_room', { roomId: currentRoomId, username: myUsername });
                 document.getElementById('display-room-id').innerText = currentRoomId;
                 showView('waiting');
