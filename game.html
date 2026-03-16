@@ -179,7 +179,7 @@
 
     <script>
         lucide.createIcons();
-        const socket = io('http://localhost:3001');
+        const socket = io();
         const urlParams = new URLSearchParams(window.location.search);
         const roomId = urlParams.get('room');
         const username = sessionStorage.getItem('username');
