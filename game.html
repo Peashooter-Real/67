@@ -286,7 +286,8 @@
             }
 
             // Controls
-            isMyTurn = players[state.currentTurn].id === socket.id;
+            const currentPlayer = players[state.currentTurn];
+            isMyTurn = currentPlayer && currentPlayer.username === username;
             const hasFlipped = !!state.pendingCard;
             
             const prompt = document.getElementById('action-prompt');

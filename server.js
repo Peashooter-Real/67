@@ -129,8 +129,14 @@ io.on('connection', (socket) => {
         const room = rooms.get(roomId);
         if (!room || room.status !== 'playing') return;
         const state = room.gameState;
+        
+        // Find player by socket ID to get their username
+        const requester = room.players.find(p => p.id === socket.id);
+        if (!requester) return;
+
         const currentPlayer = room.players[state.currentTurn];
-        if (currentPlayer.id !== socket.id || state.pendingCard) return;
+        // Validate it's actually their turn by checking username
+        if (currentPlayer.username !== requester.username || state.pendingCard) return;
 
         if (currentPlayer.deck.length > 0) {
             state.pendingCard = currentPlayer.deck.shift();
@@ -143,8 +149,11 @@ io.on('connection', (socket) => {
         if (!room || room.status !== 'playing') return;
 
         const state = room.gameState;
+        const requester = room.players.find(p => p.id === socket.id);
+        if (!requester) return;
+
         const currentPlayer = room.players[state.currentTurn];
-        if (currentPlayer.id !== socket.id || !state.pendingCard) return;
+        if (currentPlayer.username !== requester.username || !state.pendingCard) return;
 
         const currentCard = state.pendingCard;
         let expectedAction = '';
